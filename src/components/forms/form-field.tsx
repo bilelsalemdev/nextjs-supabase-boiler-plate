@@ -1,6 +1,6 @@
-import { useField } from 'formik';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useField } from "formik";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface FormFieldProps {
   label: string;
@@ -11,7 +11,7 @@ interface FormFieldProps {
 
 export function FormField({ label, ...props }: FormFieldProps) {
   const [field, meta] = useField(props);
-  
+
   return (
     <div className="space-y-2">
       <Label htmlFor={props.name}>{label}</Label>
@@ -21,4 +21,4 @@ export function FormField({ label, ...props }: FormFieldProps) {
       ) : null}
     </div>
   );
-} 
+}
