@@ -14,7 +14,7 @@ describe("TodoList", () => {
 
   it("adds a new todo", () => {
     render(<TodoList />);
-    
+
     const input = screen.getByPlaceholderText("Add a new todo...");
     const addButton = screen.getByText("Add");
 
@@ -26,12 +26,12 @@ describe("TodoList", () => {
 
   it("toggles a todo", () => {
     useTodoStore.getState().addTodo("Test todo");
-    
+
     render(<TodoList />);
-    
+
     const checkbox = screen.getByRole("checkbox");
     fireEvent.click(checkbox);
 
     expect(checkbox).toBeChecked();
   });
-}); 
+});
