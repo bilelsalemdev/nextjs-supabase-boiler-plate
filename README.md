@@ -178,3 +178,118 @@ pnpm docker:logs
 pnpm docker:down
 ```
 
+## Supabase Data Helpers
+
+### Basic CRUD Operations
+
+```typescript
+import { getData, insertData, updateData, deleteData, upsertData } from "@/lib/supabase-helpers";
+
+// Define your type
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+// Fetch with options
+const users = await getData<User>('users', {
+  select: 'id, name, email',
+  order: { column: 'created_at', ascending: false },
+  filter: [{ column: 'role', operator: 'eq', value: 'admin' }],
+  limit: 10
+});
+```
+
+### Real-time Subscriptions
+
+```typescript
+import { supabase } from "@/lib/supabase";
+
+// Subscribe to table changes
+const subscription = supabase
+  .channel('table-changes')
+  .on(
+    'postgres_changes',
+    { event: '*', schema: 'public', table: 'users' },
+    (payload) => {
+      console.log('Change received!', payload);
+    }
+  )
+  .subscribe();
+
+// Cleanup subscription
+subscription.unsubscribe();
+```
+
+### Advanced Queries
+
+```typescript
+// Join tables
+const posts = await getData('posts', {
+  select: 'id, title, user:users(name)',
+  filter: [{ column: 'published', operator: 'eq', value: true }]
+});
+
+// Full text search
+const results = await getData('posts', {
+  filter: [{ column: 'title', operator: 'ilike', value: '%search term%' }]
+});
+
+// Range queries
+const recentPosts = await getData('posts', {
+  filter: [{ 
+    column: 'created_at', 
+    operator: 'gte', 
+    value: new Date(Date.now() - 86400000).toISOString() 
+  }]
+});
+```
+
+### Batch Operations
+
+```typescript
+// Batch insert
+const users = await insertData<User>('users', [
+  { name: 'John', email: 'john@example.com' },
+  { name: 'Jane', email: 'jane@example.com' }
+]);
+
+// Batch update
+const updates = await updateData<User>('users', 
+  ['id1', 'id2'], 
+  { status: 'active' }
+);
+```
+
+### Error Handling
+
+```typescript
+try {
+  const data = await getData('nonexistent_table');
+} catch (error) {
+  if (error instanceof PostgrestError) {
+    console.error('Database error:', error.message);
+  }
+}
+```
+
+### Type Safety
+
+```typescript
+// Define strict types for your tables
+interface Post {
+  id: string;
+  title: string;
+  content: string;
+  author_id: string;
+  created_at: string;
+}
+
+// Get full type safety
+const posts = await getData<Post>('posts', {
+  select: 'id, title, content',
+  order: { column: 'created_at', ascending: false }
+});
+```
+

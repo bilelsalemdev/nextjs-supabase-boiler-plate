@@ -1,5 +1,6 @@
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { toast } from "@/hooks/use-toast";
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 const supabase = createClientComponentClient();
 
@@ -17,6 +18,15 @@ type PostgrestResponse<T> = T extends Array<any>
   : T extends object 
     ? T 
     : never;
+
+// Add these types and function
+type SubscriptionCallback = (payload: any) => void;
+
+interface SubscriptionOptions {
+  event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*';
+  schema?: string;
+  filter?: string;
+}
 
 /**
  * Generic function to fetch data from a Supabase table
@@ -194,4 +204,36 @@ export async function upsertData<T>(
     });
     return null;
   }
-} 
+}
+
+/**
+ * Subscribe to real-time changes on a table
+ */
+export function subscribeToTable(
+  table: string,
+  callback: SubscriptionCallback,
+  options: SubscriptionOptions = {}
+): RealtimeChannel {
+  return supabase
+    .channel('db-changes')
+    .on(
+      'postgres_changes' as never,
+      {
+        event: options.event || '*',
+        schema: options.schema || 'public',
+        table: table,
+        filter: options.filter,
+      },
+      callback
+    )
+    .subscribe();
+}
+
+// Usage example:
+// const unsubscribe = subscribeToTable('users', 
+//   (payload) => console.log('Change:', payload),
+//   { event: 'INSERT' }
+// );
+// 
+// // Cleanup when done
+// unsubscribe(); 
