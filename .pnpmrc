@@ -1,0 +1,6 @@
+hoist=true
+hoist-pattern[]=*eslint*
+hoist-pattern[]=*prettier*
+public-hoist-pattern[]=*types*
+strict-peer-dependencies=false
+auto-install-peers=true 

@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    depends_on:
+      - supabase
+
+  supabase:
+    image: supabase/supabase-local:latest
+    ports:
+      - "54322:5432"  # PostgreSQL
+      - "54323:54323" # Kong
+      - "54324:54324" # Auth
+      - "54325:54325" # REST
+      - "54326:54326" # Realtime
+    environment:
+      POSTGRES_PASSWORD: your-super-secret-password
+      JWT_SECRET: your-super-secret-jwt-token
+      ANON_KEY: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+      SERVICE_ROLE_KEY: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+    volumes:
+      - supabase-data:/var/lib/postgresql/data
+
+volumes:
+  supabase-data: 
