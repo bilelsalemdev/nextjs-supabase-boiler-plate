@@ -135,6 +135,17 @@ const { error } = await supabase.auth.signInWithPassword({
 });
 ```
 
+### Toast
+
+```typescript
+import { toast } from "@/hooks/use-toast";
+
+toast({
+  title: "Success",
+  description: "Data saved successfully",
+});
+```
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please read our contributing guidelines before submitting a pull request.
